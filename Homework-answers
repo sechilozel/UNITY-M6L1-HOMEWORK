@@ -1,0 +1,30 @@
+using UnityEngine;
+using UnityEngine.UI;
+using Photon.Pun; // this is needed to use Photon, 1st mistake
+
+public class PlayerManager : MonoBehaviourPunCallbacks // we should add "PunCallbacks", 2nd mistake
+{
+    [SerializeField] Text infoText;
+
+    private void Start()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            infoText.text = "Waiting for players...";
+        }
+    }
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            infoText.text = newPlayer.NickName + " joined the game!";
+            photonView.RPC("UpdateInfoText", RpcTarget.All, infoText.text);
+        }
+    }
+
+    [PunRPC] // we need to use [PunRPC], not just a plain [Pun], 3rd and last mistake here.
+    private void UpdateInfoText(string text)
+    {
+        infoText.text = text;
+    }
+}
